@@ -82,6 +82,21 @@ app.get('/cloudinary/list', async (req, res) => {
   }
 });
 
+// Fetch image from Cloudinary and return as base64 for Claude Vision
+app.post('/cloudinary/fetch-base64', async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'Missing url' });
+  try {
+    const response = await fetch(url);
+    const buffer = await response.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const contentType = response.headers.get('content-type') || 'image/png';
+    res.json({ base64, mediaType: contentType });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── MAGIC HOUR ───────────────────────────────────────────
 
 app.post('/v1/text-to-video', async (req, res) => {
